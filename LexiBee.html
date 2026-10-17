@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#eaf5fc">
+    <title>Spelling Bee | School Competition</title>
+    <style>
+        :root {
+            --hue: 205;
+            --ink: #19364b;
+            --muted: #6d8190;
+            --paper: #f2f8fc;
+            --white: #fdfeff;
+            --line: #dce8f0;
+            --accent: hsl(var(--hue) 68% 46%);
+            --accent-dark: hsl(var(--hue) 58% 28%);
+            --accent-pale: hsl(var(--hue) 72% 95%);
+            --shadow: 0 22px 60px rgba(35, 74, 100, .12);
+        }
+        * { box-sizing: border-box; }
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--ink);
+            background-color: var(--paper);
+            background-image: radial-gradient(#d7e7f1 .7px, transparent .7px);
+            background-size: 18px 18px;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+        }
+        button, input, select { font: inherit; }
+        button { cursor: pointer; }
+        .site-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: min(1160px, calc(100% - 48px));
+            height: 82px;
+            margin: auto;
+            border-bottom: 1px solid rgba(25, 54, 75, .13);
+        }
+        .brand { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+        .brand-mark { display: block; width: 48px; height: 48px; border-radius: 50%; background: #b9e3f8; object-fit: cover; object-position: center; }
+        .header-note, .eyebrow { color: var(--muted); font-size: 11px; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
+        .app-shell {
+            display: grid;
+            grid-template-columns: minmax(280px, .82fr) minmax(400px, 1.18fr);
+            width: min(1040px, calc(100% - 48px));
+            min-height: 610px;
+            margin: 42px auto 24px;
+            overflow: hidden;
+            border: 1px solid rgba(25, 54, 75, .11);
+            border-radius: 8px;
+            background: var(--white);
+            box-shadow: var(--shadow);
+            animation: arrive .55s ease-out both;
+        }
+        .welcome-panel {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100%;
+            padding: 42px 38px 34px;
+            overflow: hidden;
+            background: var(--accent-dark);
+            color: #f3f9fd;
+            transition: background-color .45s ease;
+        }
+        .welcome-panel::after {
+            position: absolute;
+            right: -90px;
+            bottom: 70px;
+            width: 250px;
+            aspect-ratio: 1;
+            border: 1px solid rgba(185, 227, 248, .34);
+            border-radius: 50%;
+            box-shadow: 0 0 0 28px rgba(185, 227, 248, .05), 0 0 0 58px rgba(185, 227, 248, .035);
+            content: "";
+        }
+        .welcome-panel .eyebrow { color: #b9e3f8; }
+        .welcome-panel h1 { max-width: 330px; margin: 20px 0 16px; font: 400 clamp(39px, 4vw, 53px)/1.04 Georgia, "Times New Roman", serif; }
+        .welcome-panel h1 em { color: #b9e3f8; font-weight: 400; }
+        .welcome-copy { max-width: 290px; margin: 0; color: rgba(243, 249, 253, .74); font-size: 14px; line-height: 1.7; }
+        .bee-seal { position: relative; z-index: 1; display: grid; width: 108px; aspect-ratio: 1; margin: 38px 0 24px; place-items: center; border: 1px solid rgba(185, 227, 248, .65); border-radius: 50%; color: #b9e3f8; font: 700 22px Georgia, serif; transition: color .25s ease, border-color .25s ease; }
+        .round-note { position: relative; z-index: 1; display: flex; gap: 22px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, .18); }
+        .round-note strong { display: block; color: #b9e3f8; font-size: 19px; }
+        .round-note span { color: rgba(243, 249, 253, .72); font-size: 11px; }
+        .content-panel { padding: 42px clamp(26px, 5vw, 58px); background-color: var(--white); background-image: linear-gradient(rgba(253, 254, 255, .82), rgba(253, 254, 255, .82)), url("images/lexibee-wallpaper.jpg"); background-position: center; background-size: cover; background-repeat: no-repeat; }
+        .screen[hidden] { display: none; }
+        .content-panel h2 { margin: 10px 0 9px; font: 400 35px/1.15 Georgia, "Times New Roman", serif; }
+        .subheading { margin: 0 0 25px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+        .room-strip { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 25px 0 27px; padding: 15px 17px; border: 1px solid var(--line); border-left: 3px solid var(--accent); background: #fbfaf5; transition: border-color .4s ease; }
+        .room-label { display: block; margin-bottom: 4px; color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+        .room-code { font: 700 22px Georgia, serif; letter-spacing: .09em; }
+        .copy-button { padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--white); color: var(--accent); font-size: 11px; font-weight: 700; }
+        .copy-button:hover { border-color: var(--accent); }
+        .field-grid { display: grid; grid-template-columns: minmax(0, 1fr) 112px; gap: 16px; }
+        .player-options { display: grid; grid-template-columns: minmax(0, 1fr) 112px; gap: 16px; }
+        .field { display: block; min-width: 0; margin-bottom: 17px; }
+        .field-label { display: flex; justify-content: space-between; margin-bottom: 7px; color: #354b5b; font-size: 12px; font-weight: 700; }
+        .field input, .field select { width: 100%; height: 46px; padding: 0 12px; border: 1px solid #d6e2ea; border-radius: 4px; outline: none; background: #fff; color: var(--ink); font-size: 13px; transition: border-color .15s, box-shadow .15s; }
+        .field input:focus, .field select:focus, .answer-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px hsl(var(--hue) 68% 46% / .15); }
+        .field input::placeholder { color: #a3aaa3; }
+        .field-hint { display: block; margin-top: 6px; color: var(--muted); font-size: 10px; }
+        .primary-button { display: flex; width: 100%; min-height: 48px; align-items: center; justify-content: center; gap: 10px; margin-top: 4px; border: 0; border-radius: 4px; background: var(--accent); color: #fff; font-size: 13px; font-weight: 750; transition: background .4s, transform .15s; }
+        .primary-button:hover { transform: translateY(-1px); background: var(--accent-dark); }
+        .primary-button:focus-visible, .copy-button:focus-visible, .listen-button:focus-visible { outline: 3px solid #e77d4c; outline-offset: 3px; }
+        .notice { min-height: 18px; margin: 12px 0 0; color: #a34331; font-size: 12px; }
+        .privacy-note { margin: 16px 0 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
+        .players-list { display: grid; gap: 10px; margin: 24px 0; }
+        .player-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 14px; border: 1px solid var(--line); border-radius: 4px; }
+        .player-row strong { display: block; overflow-wrap: anywhere; font-size: 13px; }
+        .player-row span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+        .game-top { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+        .round-count { padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px; color: var(--accent); font-size: 11px; font-weight: 750; white-space: nowrap; }
+        .progress-track { height: 5px; margin: 5px 0 23px; overflow: hidden; background: #e9ece3; }
+        .progress-fill { width: 0; height: 100%; background: var(--accent); transition: width .25s, background-color .4s; }
+        .turn-banner { display: flex; align-items: center; gap: 10px; margin: 18px 0; color: var(--muted); font-size: 12px; }
+        .turn-dot { width: 8px; aspect-ratio: 1; border-radius: 50%; background: var(--accent); transition: background-color .4s; }
+        .turn-spacer { flex: 1; }
+        .timer-badge { min-width: 66px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 4px; color: var(--accent); font-size: 12px; font-weight: 750; text-align: center; font-variant-numeric: tabular-nums; }
+        .timer-badge.urgent { border-color: #bd624b; color: #a34331; }
+        .scoreboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 17px; }
+        .score-card { padding: 10px 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--white); }
+        .score-card span { display: block; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+        .score-card strong { display: block; margin-top: 3px; color: var(--accent); font: 700 20px Georgia, serif; }
+        .word-prompt { padding: 23px; border: 1px solid var(--line); background: var(--accent-pale); text-align: center; transition: background-color .4s; }
+        .word-prompt p { margin: 0 0 15px; color: var(--muted); font: 18px Georgia, serif; }
+        .listen-button { display: inline-flex; min-height: 39px; align-items: center; gap: 8px; padding: 0 13px; border: 1px solid #b9c8b4; border-radius: 4px; background: var(--white); color: var(--accent); font-size: 12px; font-weight: 750; }
+        .listen-button:hover { border-color: var(--accent); }
+        .answer-row { display: flex; gap: 10px; margin-top: 15px; }
+        .answer-row input { flex: 1; min-width: 0; height: 46px; padding: 0 12px; border: 1px solid #d6e2ea; border-radius: 4px; outline: none; font-size: 14px; }
+        .answer-row .primary-button { width: 118px; min-height: 46px; margin: 0; }
+        .feedback { min-height: 22px; margin: 12px 0 0; font-size: 12px; }
+        .feedback.correct { color: var(--accent); }
+        .feedback.incorrect { color: #a34331; }
+        .results { margin: 23px 0; padding: 22px; background: var(--accent-pale); text-align: center; }
+        .results strong { display: block; font: 400 27px Georgia, serif; }
+        .results span { color: var(--muted); font-size: 12px; }
+        .site-footer { width: min(1040px, calc(100% - 48px)); margin: 0 auto 22px; color: var(--muted); font-size: 10px; text-align: center; }
+        @keyframes arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 760px) {
+            .site-header { width: min(100% - 32px, 560px); height: 68px; }
+            .header-note { font-size: 9px; letter-spacing: .1em; }
+            .app-shell { grid-template-columns: 1fr; width: min(100% - 32px, 560px); margin-top: 22px; }
+            .welcome-panel { min-height: 220px; padding: 25px 26px; }
+            .welcome-panel h1 { max-width: 390px; margin: 13px 0 8px; font-size: 38px; }
+            .welcome-copy { max-width: 410px; font-size: 12px; }
+            .bee-seal { position: absolute; right: 28px; bottom: 22px; width: 74px; margin: 0; font-size: 33px; }
+            .round-note { width: fit-content; gap: 18px; margin-top: 20px; padding-top: 12px; }
+            .content-panel { padding: 28px 24px 32px; }
+            .content-panel h2 { font-size: 31px; }
+            .site-footer { width: calc(100% - 32px); }
+        }
+        @media (max-width: 390px) {
+            .header-note { max-width: 130px; text-align: right; line-height: 1.4; }
+            .field-grid, .player-options { grid-template-columns: 1fr; gap: 0; }
+            .answer-row { flex-direction: column; }
+            .answer-row .primary-button { width: 100%; }
+            .bee-seal { right: 20px; width: 62px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="brand"><img class="brand-mark" src="images/lexibee-logo.jpg" alt="LexiBee logo"><span>Spelling Bee</span></div>
+        <span class="header-note">School competition | Two players</span>
+    </header>
+    <main class="app-shell">
+        <aside class="welcome-panel" aria-label="Competition introduction">
+            <div>
+                <span class="eyebrow">Ready, set, spell</span>
+                <h1>A little courage.<br>A lot of <em>spelling.</em></h1>
+                <p class="welcome-copy">Take turns, listen closely, and see who takes home the spelling crown.</p>
+                <div class="bee-seal" id="character-seal" aria-label="Competition character">Bee</div>
+            </div>
+            <div class="round-note"><div><strong>10</strong><span>questions</span></div><div><strong>1–20</strong><span>levels</span></div><div><strong>2</strong><span>players</span></div></div>
+        </aside>
+        <section class="content-panel" aria-live="polite">
+            <section class="screen" id="join-screen">
+                <span class="eyebrow" id="join-step">Match setup | Player 1 of 2</span>
+                <h2 id="join-title">Join the match</h2>
+                <p class="subheading" id="join-description">Share the room code with both players. Each code works once and changes after a player joins.</p>
+                <div class="room-strip"><div><span class="room-label">Current game password</span><strong class="room-code" id="room-code"></strong></div><button class="copy-button" id="copy-code" type="button">Copy code</button></div>
+                <form id="join-form" novalidate>
+                    <label class="field"><span class="field-label">Email address</span><input id="email" name="email" type="email" autocomplete="email" placeholder="you@school.edu" required></label>
+                    <label class="field"><span class="field-label">Player name</span><input id="player-name" name="player-name" type="text" maxlength="22" autocomplete="nickname" placeholder="Your name" required></label>
+                    <div class="player-options">
+                        <label class="field"><span class="field-label">Gender</span><select id="gender" name="gender" required><option value="female">Female</option><option value="male">Male</option></select></label>
+                        <label class="field"><span class="field-label">Level <span>1–20</span></span><select id="level" name="level" required></select></label>
+                    </div>
+                    <label class="field"><span class="field-label">Game password</span><input id="game-password" name="game-password" type="text" maxlength="8" autocomplete="one-time-code" placeholder="Enter the current code" required><span class="field-hint">Ask the match host for the latest code.</span></label>
+                    <button class="primary-button" id="join-button" type="submit">Join as player 1 <span aria-hidden="true">→</span></button>
+                    <p class="notice" id="join-notice" role="alert"></p>
+                </form>
+                <p class="privacy-note">This demo uses a local, one-use game code. It does not collect or verify account passwords.</p>
+            </section>
+            <section class="screen" id="ready-screen" hidden>
+                <span class="eyebrow">Players confirmed</span><h2>The match is set.</h2>
+                <p class="subheading">One question per turn. Hear the word, then spell it from memory.</p>
+                <div class="players-list" id="ready-players"></div>
+                <button class="primary-button" id="start-match" type="button">Start the spelling bee <span aria-hidden="true">→</span></button>
+                <p class="privacy-note">The game password rotated after each successful entry.</p>
+            </section>
+            <section class="screen" id="game-screen" hidden>
+                <div class="game-top"><div><span class="eyebrow" id="level-label">Spelling bee</span><h2>Your turn.</h2></div><span class="round-count" id="round-count">Question 1 / 10</span></div>
+                <div class="progress-track" role="progressbar" aria-label="Match progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><div class="progress-fill" id="progress-fill"></div></div>
+                <div class="turn-banner"><span class="turn-dot" aria-hidden="true"></span><span id="turn-label"></span><span class="turn-spacer"></span><span class="timer-badge" id="timer" aria-live="off">20s</span></div>
+                <div class="scoreboard" id="scoreboard" aria-label="Current scores"></div>
+                <div id="question-area">
+                    <div class="word-prompt"><p>Listen to your word.</p><button class="listen-button" id="listen-word" type="button"><span aria-hidden="true">◖</span> Hear the word</button></div>
+                    <form class="answer-row" id="answer-form"><input id="answer" name="answer" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Spell the word" placeholder="Type your spelling" required><button class="primary-button" type="submit">Submit</button></form>
+                    <p class="feedback" id="feedback" aria-live="polite"></p>
+                </div>
+                <div id="result-area" hidden><div class="results"><strong id="winner-text"></strong><span id="score-summary"></span></div><button class="primary-button" id="play-again" type="button">Play another match <span aria-hidden="true">↻</span></button></div>
+            </section>
+        </section>
+    </main>
+    <footer class="site-footer">A friendly school spelling competition</footer>
+    <script>
+        const wordLevels = [
+            ["cat", "sun", "hat", "map", "red", "bed", "fish", "jump", "milk", "hand"],
+            ["green", "plant", "smile", "crayon", "pocket", "basket", "rabbit", "winter", "picnic", "window"],
+            ["bright", "pencil", "market", "napkin", "thunder", "careful", "whisper", "blanket", "journey", "sunshine"],
+            ["library", "favorite", "mountain", "remember", "calendar", "discover", "tomorrow", "together", "practice", "beautiful"],
+            ["adventure", "excellent", "different", "important", "wonderful", "paragraph", "attention", "celebrate", "direction", "chocolate"],
+            ["knowledge", "mysterious", "passenger", "equipment", "fortunate", "beginning", "imagine", "neighbor", "separate", "recommend"],
+            ["necessary", "definitely", "environment", "temperature", "community", "independent", "comfortable", "embarrass", "immediately", "vegetable"],
+            ["appreciate", "enthusiasm", "opportunity", "responsible", "competition", "consequence", "especially", "restaurant", "rhythm", "recommend"],
+            ["accommodate", "maintenance", "privilege", "pronunciation", "conscience", "exaggerate", "guarantee", "perseverance", "occasionally", "miscellaneous"],
+            ["entrepreneur", "architecture", "bureaucracy", "conscientious", "handkerchief", "questionnaire", "reconnaissance", "infrastructure", "idiosyncrasy", "silhouette"],
+            ["anachronism", "belligerent", "benevolent", "catastrophe", "dilemma", "eloquent", "fascinate", "hypocrisy", "inoculate", "jurisdiction"],
+            ["labyrinth", "magnanimous", "negligible", "onomatopoeia", "parliament", "quintessential", "resilient", "surveillance", "tranquility", "ubiquitous"],
+            ["acquiesce", "bourgeois", "chrysanthemum", "deteriorate", "epitome", "facetious", "gregarious", "hierarchy", "indispensable", "juxtaposition"],
+            ["kaleidoscope", "liaison", "metamorphosis", "notorious", "omnipotent", "pharaoh", "quarantine", "renaissance", "simultaneous", "threshold"],
+            ["abdicate", "cacophony", "deference", "effervescent", "fastidious", "grandiloquent", "haphazard", "incorrigible", "juxtapose", "knickknack"],
+            ["allegiance", "bellwether", "connoisseur", "deleterious", "ebullient", "fervent", "garrulous", "hegemony", "ignominious", "juxtaposition"],
+            ["abstemious", "capitulate", "desiccated", "equanimity", "fluctuate", "idiosyncratic", "mnemonic", "obfuscate", "peripheral", "rendezvous"],
+            ["antediluvian", "circumlocution", "disingenuous", "enfranchise", "fastidious", "incontrovertible", "onomatopoeia", "perspicacious", "synecdoche", "vicissitude"],
+            ["acquiescence", "chiaroscuro", "consanguinity", "ecclesiastical", "idiosyncrasy", "intransigent", "onomatopoeic", "paraphernalia", "sesquipedalian", "surreptitious"],
+            ["autochthonous", "bourgeoisie", "conscientiousness", "entrepreneurial", "grandiloquence", "incomprehensible", "pneumonoultramicroscopicsilicovolcanoconiosis", "surreptitiously", "uncharacteristically", "verisimilitude"]
+        ];
+        const screens = ["join-screen", "ready-screen", "game-screen"];
+        const players = [];
+        const byId = (id) => document.getElementById(id);
+        const levelSelect = byId("level");
+        let gameCode = createCode();
+        let question = 0;
+        let waitingForNext = false;
+        let speechVoice = null;
+        let answerStartedAt = 0;
+        let timerInterval = null;
+        const answerTimeLimit = 20;
+
+        for (let level = 1; level <= 20; level += 1) {
+            const option = document.createElement("option");
+            option.value = String(level);
+            option.textContent = `Level ${level}`;
+            levelSelect.append(option);
+        }
+        function createCode() {
+            const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            const values = new Uint32Array(6);
+            crypto.getRandomValues(values);
+            return Array.from(values, (value) => chars[value % chars.length]).join("");
+        }
+        function updateCode() { byId("room-code").textContent = gameCode; byId("game-password").value = ""; }
+        function showScreen(active) { for (const id of screens) byId(id).hidden = id !== active; }
+        function renderScores() {
+            byId("scoreboard").replaceChildren();
+            for (const player of players) {
+                const card = document.createElement("div");
+                card.className = "score-card";
+                const name = document.createElement("span");
+                name.textContent = player.name;
+                const score = document.createElement("strong");
+                score.textContent = `${player.score} pts`;
+                card.append(name, score);
+                byId("scoreboard").append(card);
+            }
+        }
+        function stopTimer() {
+            window.clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        function startTimer() {
+            stopTimer();
+            answerStartedAt = performance.now();
+            const timer = byId("timer");
+            timer.textContent = `${answerTimeLimit}s`;
+            timer.classList.remove("urgent");
+            timerInterval = window.setInterval(() => {
+                const remaining = Math.max(0, answerTimeLimit - Math.floor((performance.now() - answerStartedAt) / 1000));
+                timer.textContent = `${remaining}s`;
+                timer.classList.toggle("urgent", remaining <= 5);
+                if (remaining === 0) scoreAnswer(true);
+            }, 100);
+        }
+        function setLevelTheme(level) {
+            const hue = 205 + (level - 1) * 3;
+            document.documentElement.style.setProperty("--hue", hue);
+            byId("level-label").textContent = `Level ${level} palette`;
+        }
+
+        byId("copy-code").addEventListener("click", async () => {
+            try { await navigator.clipboard.writeText(gameCode); byId("copy-code").textContent = "Copied"; }
+            catch { byId("copy-code").textContent = gameCode; }
+            window.setTimeout(() => { byId("copy-code").textContent = "Copy code"; }, 1400);
+        });
+
+        byId("join-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const email = byId("email").value.trim().toLowerCase();
+            const name = byId("player-name").value.trim();
+            const level = Number(levelSelect.value || 1);
+            const notice = byId("join-notice");
+            notice.textContent = "";
+            if (!byId("email").checkValidity() || !email) { notice.textContent = "Enter a valid email address to join."; byId("email").focus(); return; }
+            if (!name) { notice.textContent = "Enter a player name to join."; byId("player-name").focus(); return; }
+            if (!Number.isInteger(level) || level < 1 || level > 20) { notice.textContent = "Choose a valid level from 1 to 20."; levelSelect.focus(); return; }
+            if (players.some((player) => player.email === email)) { notice.textContent = "Each player needs a different email address."; byId("email").focus(); return; }
+            if (byId("game-password").value.trim().toUpperCase() !== gameCode) { notice.textContent = "That code is incorrect or expired. Ask the host for the latest code."; byId("game-password").focus(); return; }
+            const gender = byId("gender").value;
+            players.push({ email, name, gender, character: gender === "female" ? "Mika" : "Bose", level, score: 0 });
+            gameCode = createCode();
+            updateCode();
+            if (players.length === 1) {
+                byId("join-step").textContent = "Match setup | Player 2 of 2";
+                byId("join-title").textContent = "Pass it along.";
+                byId("join-description").textContent = `${name} is in. Give player 2 the new game password to join.`;
+                byId("join-button").innerHTML = 'Join as player 2 <span aria-hidden="true">→</span>';
+                byId("email").value = "";
+                byId("player-name").value = "";
+                byId("gender").value = "female";
+                levelSelect.value = "1";
+                byId("email").focus();
+            } else {
+                byId("ready-players").replaceChildren();
+                for (const player of players) {
+                    const row = document.createElement("div");
+                    row.className = "player-row";
+                    const details = document.createElement("div");
+                    const playerName = document.createElement("strong");
+                    playerName.textContent = player.name;
+                    const playerLevel = document.createElement("span");
+                    playerLevel.textContent = `Level ${player.level}`;
+                    details.append(playerName, playerLevel);
+                    row.append(details);
+                    byId("ready-players").append(row);
+                }
+                question = 0;
+                renderScores();
+                showScreen("game-screen");
+                showQuestion();
+            }
+        });
+
+        byId("start-match").addEventListener("click", () => { question = 0; renderScores(); showScreen("game-screen"); showQuestion(); });
+        function showQuestion() {
+            waitingForNext = false;
+            stopTimer();
+            byId("question-area").hidden = false;
+            byId("result-area").hidden = true;
+            byId("answer-form").reset();
+            byId("answer").disabled = false;
+            const submit = byId("answer-form").querySelector("button");
+            submit.disabled = false;
+            submit.textContent = "Submit";
+            byId("feedback").textContent = "";
+            byId("feedback").className = "feedback";
+            if (question >= 10) { showResults(); return; }
+            const player = players[question % 2];
+            setLevelTheme(player.level);
+            byId("character-seal").textContent = player.character;
+            byId("round-count").textContent = `Question ${question + 1} / 10`;
+            byId("progress-fill").style.width = `${question * 10}%`;
+            document.querySelector('[role="progressbar"]').setAttribute("aria-valuenow", String(question));
+            byId("turn-label").textContent = `${player.character} | ${player.name}'s turn | Level ${player.level}`;
+            startTimer();
+            byId("answer").focus({ preventScroll: true });
+        }
+        function speakWord() {
+            const player = players[question % 2];
+            const word = wordLevels[player.level - 1][question];
+            if (!("speechSynthesis" in window)) { byId("feedback").textContent = "Audio pronunciation is not supported by this browser."; return; }
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.rate = .78;
+            if (speechVoice) utterance.voice = speechVoice;
+            window.speechSynthesis.speak(utterance);
+        }
+        if ("speechSynthesis" in window) {
+            const chooseVoice = () => { speechVoice = window.speechSynthesis.getVoices().find((voice) => voice.lang.toLowerCase().startsWith("en")) || null; };
+            chooseVoice();
+            window.speechSynthesis.addEventListener("voiceschanged", chooseVoice);
+        }
+        byId("listen-word").addEventListener("click", speakWord);
+        byId("answer-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+            if (waitingForNext) { question += 1; showQuestion(); return; }
+            scoreAnswer(false);
+        });
+        function scoreAnswer(timedOut) {
+            if (waitingForNext || question >= 10) return;
+            stopTimer();
+            const player = players[question % 2];
+            const word = wordLevels[player.level - 1][question];
+            const elapsed = Math.max(0, (performance.now() - answerStartedAt) / 1000);
+            const correct = !timedOut && byId("answer").value.trim().toLowerCase() === word.toLowerCase();
+            const feedback = byId("feedback");
+            feedback.className = `feedback ${correct ? "correct" : "incorrect"}`;
+            if (correct) {
+                const speedPoints = Math.max(0, Math.ceil((answerTimeLimit - elapsed) / answerTimeLimit * 100));
+                const points = 100 + speedPoints;
+                player.score += points;
+                feedback.textContent = `Correct! +${points} points (${100} for spelling + ${speedPoints} for speed).`;
+            } else if (timedOut) {
+                feedback.textContent = `Time is up. The word was ${word}. No points this turn.`;
+            } else {
+                feedback.textContent = `Not quite. The word was ${word}. No points this turn.`;
+            }
+            renderScores();
+            waitingForNext = true;
+            byId("timer").classList.remove("urgent");
+            byId("timer").textContent = timedOut ? "0s" : `${Math.max(0, Math.ceil(answerTimeLimit - elapsed))}s`;
+            byId("answer").disabled = true;
+            byId("answer-form").querySelector("button").textContent = question === 9 ? "See results" : "Next question";
+            byId("progress-fill").style.width = `${(question + 1) * 10}%`;
+            document.querySelector('[role="progressbar"]').setAttribute("aria-valuenow", String(question + 1));
+        };
+        function showResults() {
+            stopTimer();
+            byId("question-area").hidden = true;
+            byId("result-area").hidden = false;
+            const [first, second] = players;
+            byId("round-count").textContent = "Match complete";
+            byId("progress-fill").style.width = "100%";
+            document.querySelector('[role="progressbar"]').setAttribute("aria-valuenow", "10");
+            if (first.score === second.score) byId("winner-text").textContent = "A spelling tie!";
+            else byId("winner-text").textContent = `${first.score > second.score ? first.name : second.name} takes the crown!`;
+            byId("score-summary").textContent = `${first.name}: ${first.score} points | ${second.name}: ${second.score} points`;
+        }
+        byId("play-again").addEventListener("click", () => window.location.reload());
+        updateCode();
+    </script>
+</body>
+</html>
